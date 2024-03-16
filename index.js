@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   console.log("tsting");
-  return res.status(200).json({ message: "server start agains_16" });
+  return res.status(200).json({ message: "Server Running" });
 });
 
 app.use("/api", router);
@@ -29,5 +29,5 @@ app.use(function(err, req, res, next) {
 })
 const PORT = process.env.PORT || 5070;
 app.listen(PORT, () => {
-  console.log(`Server Running here 👉 http://localhost:${PORT}`);
+  console.log(`Server Running here  👉 http://localhost:${PORT}`);
 });
