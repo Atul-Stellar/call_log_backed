@@ -1,5 +1,6 @@
 const { DBlogged } = require("../config/log.config");
 const { DateSTD } = require("../helpers/dateHelper");
+const { Op } = require("sequelize");
 const db = require("../migrations");
 
 exports.CallLogCreate = async(data,userid)=>{
@@ -22,28 +23,80 @@ exports.CallLogCreate = async(data,userid)=>{
         return {code:200,status:"success",message:"call log created successfully"};
     }catch(e){
     DBlogged.error(JSON.stringify(e));
-    return {code:500,status:"error",message:e?.errors[0]?.message};
+    return {code:500,status:"error",message:e.parent.sqlMessage};
    }
 }
 
-exports.CallLogAll = async(userid)=>{
+exports.CallLogAll = async(userid, page,query)=>{
     try{
-        return {
-            code:200,
-            status:"success",
-            message : await db.call_logs.findAll({
+        const skip = (page - 1) * 10;
+        let totalPage;
+        let totalRow;
+        let get;
+        if(query){
+            totalPage = await db.call_logs.count({
+                where:{
+                    fk_employess_id:userid,
+                    [Op.or]: [
+                        { name: { [Op.like]: `%${query}%` } },
+                        { phone: { [Op.like]: `%${query}%` } },
+                        { date: { [Op.like]: `%${query}%` } }
+                    ]
+                }
+            })
+            totalRow = totalPage;
+            totalPage = Math.ceil(totalPage / 10);
+            get =await db.call_logs.findAll({
                 include:{
                     attributes:["id",'name'],
                     model: db.call_types,
                     as:"call_type"
                 },
+                limit:10,
+                offset:skip,
                 where:{
-                    fk_employess_id:userid
+                    fk_employess_id:userid,
+                    [Op.or]: [
+                        { name: { [Op.like]: `%${query}%` } },
+                        { phone: { [Op.like]: `%${query}%` } },
+                        { date: { [Op.like]: `%${query}%` } }
+                    ]
+                }
+            })
+        }else{
+            totalPage = await db.call_logs.count({
+                where:{
+                    fk_employess_id:userid,
+                }
+            })
+            totalRow = totalPage;
+            totalPage = Math.ceil(totalPage / 10);
+            get =await db.call_logs.findAll({
+                include:{
+                    attributes:["id",'name'],
+                    model: db.call_types,
+                    as:"call_type"
+                },
+                limit:10,
+                offset:skip,
+                where:{
+                    fk_employess_id:userid,
                 }
             })
         }
+        return {
+            code:200,
+            status:"success",
+            message:{
+                data:get,
+                totalPage:totalPage,
+                totalRow:totalRow
+            } 
+        }
     }catch(e){
+        console.log(e)
     DBlogged.error(JSON.stringify(e));
-    return {code:500,status:"error",message:e?.errors[0]?.message};
+        
+    return {code:500,status:"error",message:e.parent.sqlMessage};
    }
 }
