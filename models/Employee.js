@@ -92,6 +92,9 @@ exports.getAllEmployee = async(page,query)=>{
             get = await db.employess.findAll({
                 limit:10,
                 offset:skip,
+                order: [
+                    ['id', 'DESC'],
+                ],
                 where:{
                     [Op.or]: [
                         { name: { [Op.like]: `%${query}%` } },
@@ -106,6 +109,9 @@ exports.getAllEmployee = async(page,query)=>{
             totalPage = Math.ceil(totalPage / 10);
             get = await db.employess.findAll({
                 limit:10,
+                order: [
+                    ['id', 'DESC'],
+                ],
                 offset:skip,
             })
         }

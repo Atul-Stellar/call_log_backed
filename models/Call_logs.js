@@ -54,6 +54,9 @@ exports.CallLogAll = async(userid, page,query)=>{
                 },
                 limit:10,
                 offset:skip,
+                order: [
+                    ['id', 'DESC'],
+                ],
                 where:{
                     fk_employess_id:userid,
                     [Op.or]: [
@@ -79,6 +82,9 @@ exports.CallLogAll = async(userid, page,query)=>{
                 },
                 limit:10,
                 offset:skip,
+                order: [
+                    ['id', 'DESC'],
+                ],
                 where:{
                     fk_employess_id:userid,
                 }
