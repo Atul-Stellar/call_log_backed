@@ -108,6 +108,24 @@ exports.getAllEmployee = async(page,query)=>{
             totalRow = totalPage;
             totalPage = Math.ceil(totalPage / 10);
             get = await db.employess.findAll({
+                attributes:['id','name','email','phone','status'],
+                include:[
+                    {
+                        attributes:["id",'name'],
+                        model: db.gender_master,
+                        as:"fk_gender"
+                    },
+                    {
+                        attributes:["id","name"],
+                        model: db.acdemy_center,
+                        as:"fk_academy_center",
+                        include:{
+                            attributes:["id",'name'],
+                            model:db.city,
+                            as:"fk_city"
+                        }
+                    }
+                ],
                 limit:10,
                 order: [
                     ['id', 'DESC'],
@@ -124,6 +142,52 @@ exports.getAllEmployee = async(page,query)=>{
                 totalRow:totalRow
             } 
         }
+    }catch(e){
+        DBlogged.error(JSON.stringify(e));
+        console.log(e)
+        return {code:500,status:"error",message:e.parent.sqlMessage};
+   }
+}
+
+exports.EmployessInfo = async(userid)=>{
+    try{
+        return {
+            code:200,
+            status:"success",
+            message:  await db.employess.findAll({
+                attributes:['id','name','email','phone','status'],
+                include:[
+                    {
+                        attributes:["id",'name'],
+                        model: db.gender_master,
+                        as:"fk_gender"
+                    },
+                    {
+                        attributes:["id","name"],
+                        model: db.acdemy_center,
+                        as:"fk_academy_center",
+                        include:{
+                            attributes:["id",'name'],
+                            model:db.city,
+                            as:"fk_city"
+                        }
+                    }
+                ],
+               where:{
+                id:userid,
+               }
+            })
+        }
+   }catch(e){
+        DBlogged.error(JSON.stringify(e));
+        console.log(e)
+        return {code:500,status:"error",message:e.parent.sqlMessage};
+   }
+}
+
+exports.EmployeeInfoUpdate = async(userid,data)=>{
+    try{
+
     }catch(e){
         DBlogged.error(JSON.stringify(e));
         console.log(e)

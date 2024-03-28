@@ -27,7 +27,7 @@ exports.CallLogCreate = async(data,userid)=>{
    }
 }
 
-exports.CallLogAll = async(userid, page,query)=>{
+exports.CallLogAll = async(userid, page,query,dates)=>{
     try{
         const skip = (page - 1) * 10;
         let totalPage;
@@ -37,6 +37,7 @@ exports.CallLogAll = async(userid, page,query)=>{
             totalPage = await db.call_logs.count({
                 where:{
                     fk_employess_id:userid,
+                    date:dates,
                     [Op.or]: [
                         { name: { [Op.like]: `%${query}%` } },
                         { phone: { [Op.like]: `%${query}%` } },
@@ -50,7 +51,7 @@ exports.CallLogAll = async(userid, page,query)=>{
                 include:{
                     attributes:["id",'name'],
                     model: db.call_types,
-                    as:"call_type"
+                    as:"fk_call_type_call_type"
                 },
                 limit:10,
                 offset:skip,
@@ -59,6 +60,7 @@ exports.CallLogAll = async(userid, page,query)=>{
                 ],
                 where:{
                     fk_employess_id:userid,
+                    date:dates,
                     [Op.or]: [
                         { name: { [Op.like]: `%${query}%` } },
                         { phone: { [Op.like]: `%${query}%` } },
@@ -70,6 +72,7 @@ exports.CallLogAll = async(userid, page,query)=>{
             totalPage = await db.call_logs.count({
                 where:{
                     fk_employess_id:userid,
+                    date:new Date(dates),
                 }
             })
             totalRow = totalPage;
@@ -78,7 +81,7 @@ exports.CallLogAll = async(userid, page,query)=>{
                 include:{
                     attributes:["id",'name'],
                     model: db.call_types,
-                    as:"call_type"
+                    as:"fk_call_type_call_type"
                 },
                 limit:10,
                 offset:skip,
@@ -87,6 +90,7 @@ exports.CallLogAll = async(userid, page,query)=>{
                 ],
                 where:{
                     fk_employess_id:userid,
+                    date:new Date(dates),
                 }
             })
         }
@@ -100,9 +104,36 @@ exports.CallLogAll = async(userid, page,query)=>{
             } 
         }
     }catch(e){
-        console.log(e)
     DBlogged.error(JSON.stringify(e));
         
+    return {code:500,status:"error",message:e.parent.sqlMessage};
+   }
+}
+
+exports.gettotalcalls = async(userid,date)=>{
+    try{
+        return  await db.call_logs.count({
+            where:{
+                date:new Date(date),
+                fk_employess_id:userid,
+            }
+        })
+     }catch(e){
+    DBlogged.error(JSON.stringify(e));
+    return {code:500,status:"error",message:e.parent.sqlMessage};
+   }
+}
+exports.gettotalcallsTypes = async(userid,date,type)=>{
+    try{
+        return  await db.call_logs.count({
+            where:{
+                date:new Date(date),
+                fk_employess_id:userid,
+                fk_call_type:type
+            }
+        })
+     }catch(e){
+    DBlogged.error(JSON.stringify(e));
     return {code:500,status:"error",message:e.parent.sqlMessage};
    }
 }

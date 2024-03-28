@@ -1,5 +1,5 @@
 const moment = require('moment-timezone');
 
-exports.DateSTD = ()=>{
+exports.DateIST = ()=>{
     return moment().tz('Asia/Kolkata').format('YYYY-MM-DD')
 }

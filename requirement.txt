@@ -1,0 +1,4 @@
+1) can we get realtime phone number when we get call ?
+
+
+sequelize-auto -h 127.0.0.1 -d call_log -u root -x Abcd@1234 -p 3306  --dialect mysql  -o model
